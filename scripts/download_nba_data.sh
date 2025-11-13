@@ -59,14 +59,14 @@ DATA_DIR = pathlib.Path("$DATA_DIR")
 PARQUET_FILE = DATA_DIR / "shots.parquet"
 
 csv_files = sorted(DATA_DIR.glob("*.csv"))
-print(f"[PY] Found {len(csv_files)} CSVs")
+print(f"Found {len(csv_files)} CSVs")
 
 if not csv_files:
     raise RuntimeError("No CSV files found in data directory.")
 
 dfs = []
 for f in csv_files:
-    print(f"[PY] Reading {f.name}")
+    print(f"[Extracting] Reading {f.name}")
     dfs.append(pd.read_csv(f, low_memory=False))
 
 df = pd.concat(dfs, ignore_index=True)
