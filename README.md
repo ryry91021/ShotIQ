@@ -43,10 +43,19 @@ Random Forests handle both numerical and categorical data well, model non-linear
 
 ## 🚀 How to Use
 
-1. Clone this repo and install requirements
-2. Run the notebook: `nba_shot_model.ipynb`
-3. Use sliders or dropdowns to select player and shot parameters
-4. Get instant predictions for shot success probability
+### 1. Clone the repository & run script
+```bash
+git clone https://github.com/ryry91021/shotIQ.git
+cd shotIQ
+```
+### 2. Download dataset
+```bash
+./scripts/download_nba_data
+```
+### 3. Run Python Program
+```bash
+python main.py
+```
 
 ---
 
