@@ -17,13 +17,7 @@ class ShotDataLoader:
         self.extension = extension.lower()
         self.dataframes: List[pd.DataFrame] = []
 
-    #unnecessary with parquet
-    def _iter_data_files(self):
-        """
-        Yield full paths to all matching files in the data directory.
-        input: None
-        output: generator of Path objects for the data files
-        """
+
 
 
 
