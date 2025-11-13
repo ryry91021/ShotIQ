@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==========================================================
-#  download_nba_data.sh
-#  Downloads the NBA shots dataset via Kaggle API endpoint
-#  using curl, and extracts it into ./data/
+# download_nba_data.sh (Simplified, Reliable Version)
+# Downloads the NBA shots dataset, extracts CSVs,
+# converts them to a single Parquet file, and
+# performs cleanup. Idempotent on repeated runs.
 # ==========================================================
 
 set -euo pipefail
@@ -10,34 +11,76 @@ set -euo pipefail
 # --- Setup ---
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="$PROJECT_ROOT/data"
-ZIP_FILE="$DATA_DIR/nba-shots-dataset.zip"
+ZIP_FILE="$DATA_DIR/nba-shots.zip"
+PARQUET_FILE="$DATA_DIR/shots.parquet"
 DATASET_URL="https://www.kaggle.com/api/v1/datasets/download/techbaron13/nba-shots-dataset-2001-present"
 
-echo "[INFO] Ensuring data directory exists at: $DATA_DIR"
 mkdir -p "$DATA_DIR"
 
-# --- Download using Kaggle API token ---
-# Requires ~/.kaggle/kaggle.json
+# ==========================================================
+# 1. If parquet exists → skip everything
+# ==========================================================
+if [[ -f "$PARQUET_FILE" ]]; then
+    echo "[INFO] Parquet already exists at $PARQUET_FILE"
+    echo "[INFO] Skipping download and CSV processing."
+    exit 0
+fi
+
+# ==========================================================
+# 2. Download ZIP using Kaggle API token
+# ==========================================================
 echo "[INFO] Downloading dataset from Kaggle..."
-curl -L -o "$ZIP_FILE" --header "Authorization: Bearer $(jq -r '.key' ~/.kaggle/kaggle.json)" "$DATASET_URL"
+curl -L -o "$ZIP_FILE" \
+     --header "Authorization: Bearer $(jq -r '.key' ~/.kaggle/kaggle.json)" \
+     "$DATASET_URL"
 
-# --- Unzip ---
-if [[ -f "$ZIP_FILE" ]]; then
-  echo "[INFO] Extracting files..."
-  unzip -o "$ZIP_FILE" -d "$DATA_DIR" >/dev/null
-else
-  echo "[ERROR] Download failed. No zip file found."
-  exit 1
-fi
+# ==========================================================
+# 3. Extract ZIP
+# ==========================================================
+echo "[INFO] Extracting ZIP..."
+unzip -o "$ZIP_FILE" -d "$DATA_DIR" >/dev/null
 
-# --- Move CSVs up from nested folders if needed ---
-if compgen -G "$DATA_DIR/**/*.csv" > /dev/null; then
-  echo "[INFO] Flattening CSV structure..."
-  find "$DATA_DIR" -type f -name "*.csv" -exec mv {} "$DATA_DIR" \;
-fi
+# ==========================================================
+# 4. Flatten CSV structure (works on all shells)
+# ==========================================================
+echo "[INFO] Flattening CSV files..."
+find "$DATA_DIR" -type f -name "*.csv" -exec mv {} "$DATA_DIR" \;
 
-# --- Cleanup ---
+# ==========================================================
+# 5. Convert all CSVs into ONE Parquet file
+# ==========================================================
+echo "[INFO] Creating Parquet file..."
+
+python3 - << EOF
+import pandas as pd
+import pathlib
+
+DATA_DIR = pathlib.Path("$DATA_DIR")
+PARQUET_FILE = DATA_DIR / "shots.parquet"
+
+csv_files = sorted(DATA_DIR.glob("*.csv"))
+print(f"[PY] Found {len(csv_files)} CSVs")
+
+if not csv_files:
+    raise RuntimeError("No CSV files found in data directory.")
+
+dfs = []
+for f in csv_files:
+    print(f"[PY] Reading {f.name}")
+    dfs.append(pd.read_csv(f, low_memory=False))
+
+df = pd.concat(dfs, ignore_index=True)
+df.to_parquet(PARQUET_FILE, index=False)
+
+print(f"[PY] Saved Parquet to: {PARQUET_FILE}")
+EOF
+
+# ==========================================================
+# 6. Cleanup
+# ==========================================================
+echo "[INFO] Cleaning up CSVs and ZIP..."
 rm -f "$ZIP_FILE"
-find "$DATA_DIR" -type d -empty -delete
+rm -f "$DATA_DIR"/*.csv
 
-echo "[DONE] All CSVs ready in $DATA_DIR/"
+echo "[DONE] Dataset is ready at:"
+echo "       $PARQUET_FILE"
