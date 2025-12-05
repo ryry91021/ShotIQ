@@ -22,7 +22,7 @@ def main():
 
     # Plot data for a specific player
     plotter = CourtPlotter()
-    plotter.plot_shot_data(cleaned_df, player="Carmelo Anthony")
+    plotter.plot_shot_data(cleaned_df, player="Josh Hart")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Total execution time: {elapsed_time:.2f} seconds")

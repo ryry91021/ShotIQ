@@ -7,7 +7,7 @@ import pandas as pd
 
 class ShotDataLoader:
     """
-    Loader class for csv shot data
+    Loader class for shot data parquet.
     Converts parquet file to pandas dataframe.
     """
 

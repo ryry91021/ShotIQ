@@ -15,7 +15,7 @@ class CourtPlotter:
         self.player = player
         self.team = team
 
-    def draw_court_feet(self, ax=None, color='black', lw=2, outer_lines=True):
+    def __draw_court_feet(self, ax=None, color='black', lw=2, outer_lines=True):
         """
         NBA half court in feet.
         inputs: None
@@ -95,7 +95,7 @@ class CourtPlotter:
         
         data=df[df["player"].str.contains(player, case=False, na=False)]
         fig, ax = plt.subplots(figsize=figsize)
-        self.draw_court_feet(ax, outer_lines=True)
+        self.__draw_court_feet(ax, outer_lines=True)
 
         colors = np.where(data["made"] == 1, "green", "red")
         ax.scatter(data["shotX"], data["shotY"], c=colors, alpha=0.7, s=30, edgecolors="none")
