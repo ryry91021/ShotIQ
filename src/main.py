@@ -1,10 +1,10 @@
 from process_data import ShotDataLoader
 from clean_data import ShotDataCleaner
-# from plots import CourtPlotter  <-- Replaced with interactive version
 from interactive_plots import InteractiveCourtPlotter
 from model import ShotOutcomePredictor
 from pathlib import Path
 import time
+
 
 def main():
     start_time = time.perf_counter()
@@ -12,7 +12,6 @@ def main():
 
     # 1. Load Data
     loader = ShotDataLoader(base_dir=BASE_DIR, data_subdir="../data")
-    # Ensure this path matches your local structure
     parquet_path = BASE_DIR / "../data/shots.parquet"
     
     if not parquet_path.exists():
@@ -28,32 +27,36 @@ def main():
     cleaner = ShotDataCleaner()
     cleaned_df = cleaner.clean(df)
 
-    # 3. Train Machine Learning Model [cite: 57]
-    # We filter for a subset or train on all. Training on 4000+ files might be slow,
-    # so for the "Progress Report" demo, we can train on the loaded dataframe.
-    predictor = ShotOutcomePredictor()
-    accuracy = predictor.train(cleaned_df)
-    
+    # Get player name before training
+    player_name = input("Enter player name for shot probability prediction: ")
+
+    # 3. Train per-player Machine Learning Model
+    predictor = ShotOutcomePredictor(min_samples=100)
+    try:
+        accuracy = predictor.train(cleaned_df, player=player_name)
+    except ValueError as e:
+        print(e)
+        return
+
     # Example Prediction (User Input Simulation)
-    # Predicting a 25ft shot for Carmelo Anthony
     prob = predictor.predict_probability(
-        shotX=25, shotY=25, distance=25, player="Carmelo Anthony", shot_type=3
+        shotX=25,
+        shotY=25,
+        distance=25,
+        player=player_name,
+        shot_type=3  # whatever encoding you're using for shot_type
     )
-    print(f"Prediction: Carmelo Anthony has a {prob*100:.1f}% chance of making a 25ft shot.")
+    print(f"Prediction: {player_name} has a {prob*100:.1f}% chance of making a 25ft shot.")
 
-    # 4. Interactive Visualization [cite: 55]
-    # This prepares the figure which can be rendered in Jupyter or exported to HTML
+    # 4. Interactive Visualization (historical shots for that player)
     plotter = InteractiveCourtPlotter()
-    fig = plotter.plot_shot_data(cleaned_df, player="Carmelo Anthony")
+    fig = plotter.plot_shot_data(cleaned_df, player=player_name)
     fig.show()
-    
-    # To view the plot, typically you would use fig.show() or write to HTML
-    # fig.write_html("carmelo_interactive.html")
-    print("Interactive plot object created.")
 
-    end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
+    print("Interactive plot object created.")
+    elapsed_time = time.perf_counter() - start_time
     print(f"Total execution time: {elapsed_time:.2f} seconds")
+
 
 if __name__ == "__main__":
     main()
