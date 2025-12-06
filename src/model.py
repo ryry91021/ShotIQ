@@ -42,7 +42,7 @@ class ShotOutcomePredictor:
         self.model = Pipeline(steps=[
             ('preprocessor', self.preprocessor),
             ('classifier', RandomForestClassifier(
-                n_estimators=50,
+                n_estimators=1500,
                 max_depth=10,
                 n_jobs=-1,
                 random_state=42
