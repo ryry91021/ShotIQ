@@ -27,10 +27,10 @@ def main():
     cleaner = ShotDataCleaner()
     cleaned_df = cleaner.clean(df)
 
-    # Get player name before training
+    # 3. Choose player
     player_name = input("Enter player name for shot probability prediction: ")
 
-    # 3. Train per-player Machine Learning Model
+    # 4. Train per-player model with binary search on n_estimators
     predictor = ShotOutcomePredictor(min_samples=100)
     try:
         accuracy = predictor.train(cleaned_df, player=player_name)
@@ -38,17 +38,16 @@ def main():
         print(e)
         return
 
-    # Example Prediction (User Input Simulation)
+    # 5. Example prediction
     prob = predictor.predict_probability(
         shotX=25,
         shotY=25,
         distance=25,
-        player=player_name,
-        shot_type=3  # whatever encoding you're using for shot_type
+        shot_type=3  # or whatever encoding you use
     )
     print(f"Prediction: {player_name} has a {prob*100:.1f}% chance of making a 25ft shot.")
 
-    # 4. Interactive Visualization (historical shots for that player)
+    # 6. Historical shot viz
     plotter = InteractiveCourtPlotter()
     fig = plotter.plot_shot_data(cleaned_df, player=player_name)
     fig.show()
