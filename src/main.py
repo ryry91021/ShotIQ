@@ -41,13 +41,17 @@ def main():
     print(f"Trained per-player model for {player_name}. Accuracy: {accuracy:.4f}")
 
     # 5. Example Prediction (User Input Simulation)
+    shotX, shotY = 25, 25
+    shot_type = 3  # adjust to match your shot_type encoding
     prob = predictor.predict_probability(
-        shotX=25,
-        shotY=25,
-        distance=25,
-        shot_type=3  # adjust to match your shot_type encoding
+        shotX=shotX,
+        shotY=shotY,
+        shot_type=shot_type
     )
-    print(f"Prediction: {player_name} has a {prob*100:.1f}% chance of making a 25ft shot.")
+    # Calculate distance from hoop (25, 4.75)
+    hoop_x, hoop_y = 25, 4.75
+    distance = ((shotX - hoop_x)**2 + (shotY - hoop_y)**2) ** 0.5
+    print(f"Prediction: {player_name} has a {prob*100:.1f}% chance of making a {distance:.1f}ft shot.")
 
     # 6. Interactive Visualization (historical shots for that player)
     plotter = InteractiveCourtPlotter()

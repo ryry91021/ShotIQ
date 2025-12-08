@@ -42,7 +42,7 @@ class ShotOutcomePredictor:
         self.model = Pipeline(steps=[
             ('preprocessor', self.preprocessor),
             ('classifier', RandomForestClassifier(
-                n_estimators=1500,
+                n_estimators=500,
                 max_depth=10,
                 n_jobs=-1,
                 random_state=42
@@ -91,13 +91,18 @@ class ShotOutcomePredictor:
         return acc
 
 
-    def predict_probability(self, shotX, shotY, distance, shot_type):
+    def predict_probability(self, shotX, shotY, shot_type):
         """
         Returns the probability of a specific shot being made
         for the player this model was trained on (self.trained_player).
+        Distance is calculated from the hoop location at (25, 4.75).
         """
         if self.model is None or self.trained_player is None:
             raise RuntimeError("Model has not been trained for any player yet.")
+
+        # Calculate distance from hoop location (25, 4.75)
+        hoop_x, hoop_y = 25, 4.75
+        distance = np.sqrt((shotX - hoop_x)**2 + (shotY - hoop_y)**2)
 
         input_data = pd.DataFrame({
             'shotX': [shotX],
