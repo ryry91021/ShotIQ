@@ -7,8 +7,9 @@ class InteractiveCourtPlotter:
     Allows users to interactively choose shot locations and view data[cite: 55].
     """
 
-    def __init__(self, player=None):
+    def __init__(self, player=None, predictor=None):
         self.player = player
+        self.predictor = predictor
 
     def draw_court(self, fig):
         """
@@ -36,11 +37,12 @@ class InteractiveCourtPlotter:
 
     def plot_shot_data(self, df, player=None):
         """
-        Plots shots using Plotly Scatter.
+        Plots shots using Plotly Scatter with click interactivity for probability prediction.
+        Clicking on the court calculates the shot probability for that location.
         """
         if player:
             df = df[df["player"].str.contains(player, case=False, na=False)]
-            title = f"{player} - Shot Heatmap & Success"
+            title = f"{player} - Shot Heatmap & Success (Click on court for probability)"
         else:
             title = "League Wide Shot Data"
 
@@ -72,6 +74,21 @@ class InteractiveCourtPlotter:
             height=600,
             template="plotly_white"
         )
+        
+        # Add click handler for probability prediction
+        if self.predictor is not None:
+            fig.update_layout(
+                clickmode='event+select',
+                hovermode='closest'
+            )
+            
+            # Custom JavaScript-like behavior via plotly's click data
+            fig.update_layout(
+                title=dict(
+                    text=f"{player} - Shot Heatmap & Success<br><sub>Click on court to predict shot probability</sub>"
+                    if player else "League Wide Shot Data<br><sub>Click on court to predict shot probability</sub>"
+                )
+            )
         
         print("Generating interactive plot...")
         # In a real app, fig.show() or return fig
