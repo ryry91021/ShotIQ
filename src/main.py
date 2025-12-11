@@ -47,7 +47,7 @@ def main():
             print("Please enter 'y' or 'n' (or 'yes'/'no').")
 
     while True:
-        player_name = input("Enter player name for shot probability prediction (or 'q' to quit): ").strip()
+        player_name = input("Enter player name (E.g. LeBron James, Josh Hart) for shot probability prediction (or 'q' to quit): ").strip()
         if player_name.lower() in {"q", "quit", "exit"}:
             print("Exiting.")
             break
