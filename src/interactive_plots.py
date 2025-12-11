@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
 
 class InteractiveCourtPlotter:
     """
@@ -27,12 +28,29 @@ class InteractiveCourtPlotter:
         # Free Throw Circle
         fig.add_shape(type="circle", x0=19, y0=13, x1=31, y1=25, line=dict(color="Black", width=2))
 
-        # 3-Point Line (Simplified approximation for Plotly)
-        # Side lines
+        # 3-Point Line
+        # Side lines (corners) up to 14 ft
         fig.add_shape(type="line", x0=3, y0=0, x1=3, y1=14, line=dict(color="Black", width=2))
         fig.add_shape(type="line", x0=47, y0=0, x1=47, y1=14, line=dict(color="Black", width=2))
-        # Arc (Plotly doesn't have a simple 'arc' primitive like mpl, using SVG path or scatter would be precise
-        # but for this demo we rely on the scatter data to define the shape visually)
+
+        # Arc centered at hoop (use a scatter trace for smooth curve)
+        hoop_x, hoop_y = 25.0, 4.75
+        three_r = 23.75
+        # angles chosen so arc meets the corner lines around y=14
+        theta1 = np.deg2rad(21.6)
+        theta2 = np.deg2rad(158.4)
+        theta = np.linspace(theta1, theta2, 180)
+        arc_x = hoop_x + three_r * np.cos(theta)
+        arc_y = hoop_y + three_r * np.sin(theta)
+        fig.add_trace(go.Scatter(
+            x=arc_x,
+            y=arc_y,
+            mode='lines',
+            line=dict(color='Black', width=2),
+            hoverinfo='skip',
+            showlegend=False,
+            name='3PT Arc'
+        ))
 
     def plot_shot_data(self, df, player=None):
         """
