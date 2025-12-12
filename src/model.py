@@ -87,7 +87,7 @@ class ShotOutcomePredictor:
 
         preds = self.model.predict(X_test)
         acc = accuracy_score(y_test, preds)
-        print(f"Model Training Complete for {player}. Accuracy: {acc:.4f}")
+        print(f"Model Training Complete for {player}")
         return acc
 
 
