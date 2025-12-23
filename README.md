@@ -24,7 +24,7 @@ This project applies machine learning to predict the success of NBA shots using 
 - The model outputs a **make probability** based on player and shot location
 
 ### Why Random Forest?
-Random Forests handle both numerical and categorical data well, model non-linear relationships, and offer feature importance for analysis.
+Random Forests handle both numerical, binary, and categorical data well, model non-linear relationships, and offer feature importance for analysis.
 
 ---
 
@@ -54,7 +54,7 @@ cd shotIQ
 ```
 ### 3. Run Python Program
 ```bash
-python main.py
+python src/main.py
 ```
 
 ---
@@ -62,8 +62,7 @@ python main.py
 ## 📈 Future Work
 
 - Visual shot heatmaps per player
-- Incorporate defender proximity and game score
-- Streamlit or web-based deployment
+- PyPlot output
 - Player-specific model tuning
 
 ---
