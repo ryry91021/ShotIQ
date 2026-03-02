@@ -2,3 +2,4 @@ documentation/
 src/__pycache__/
 *.log
 *.tmp
+.venv/
